@@ -1,15 +1,13 @@
 import morgan from "morgan";
 import express from "express";
 import { config } from "dotenv";
-import { connectDB } from "./utils/features.js";
-import usersRoutes from "./routes/users.routes.js";
-import productsRoutes from "./routes/products.routes.js";
-import { customErrorMiddleWare } from "./middlewares/errorHandler.js";
+import { connectDB } from "./src/utils/features.js";
+import usersRoutes from "./src/routes/users.routes.js";
+import productsRoutes from "./src/routes/products.routes.js";
+import { customErrorMiddleWare } from "./src/middlewares/errorHandler.js";
 import cors from "cors";
 
-config({
-	path: "./.env",
-});
+config({});
 
 // Constant Variables ...........
 const app = express();
