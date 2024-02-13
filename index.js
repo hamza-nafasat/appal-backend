@@ -12,9 +12,7 @@ config({});
 // Constant Variables ...........
 const app = express();
 const port = process.env.PORT || 8000;
-const mongoUrl =
-	process.env.MONGODB_URL ||
-	"mongodb+srv://faraz:AcmeIsWorking@cluster0.fmgxp11.mongodb.net/?retryWrites=true";
+const mongoUrl = process.env.MONGODB_URL || "mongodb://localhost:27017";
 const dbName = process.env.DB_NAME || "appal-database2";
 const usersPrefix = "/api/v1/users";
 const productsPrefix = "/api/v1/products";

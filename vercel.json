@@ -2,12 +2,14 @@
 	"version": 2,
 	"builds": [
 		{
-			"src": "functions/server.js",
-			"use": "@vercel/node",
-			"config": {
-				"runtime": "nodejs14.x",
-				"entrypoint": "app.js"
-			}
+			"src": "./index.js",
+			"use": "@vercel/node"
+		}
+	],
+	"routes": [
+		{
+			"src": "/(.*)",
+			"dest": "/"
 		}
 	]
 }
