@@ -2,18 +2,12 @@
 	"version": 2,
 	"builds": [
 		{
-			"src": "*.json",
-			"use": "@vercel/node"
-		},
-		{
-			"src": "*",
-			"use": "@vercel/node"
-		}
-	],
-	"routes": [
-		{
-			"src": "/(.*)",
-			"dest": "/.serverless/pages/api/$0.js"
+			"src": "functions/app.js",
+			"use": "@vercel/node",
+			"config": {
+				"runtime": "nodejs14.x",
+				"entrypoint": "app.js"
+			}
 		}
 	]
 }
