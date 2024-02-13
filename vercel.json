@@ -2,7 +2,7 @@
 	"version": 2,
 	"builds": [
 		{
-			"src": "functions/app.js",
+			"src": "functions/server.js",
 			"use": "@vercel/node",
 			"config": {
 				"runtime": "nodejs14.x",
