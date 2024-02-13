@@ -1,5 +1,6 @@
 import fs from "fs";
 import mongoose from "mongoose";
+import { Mongoose } from "mongoose";
 
 // =====================
 // delete photo function
