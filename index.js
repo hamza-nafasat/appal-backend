@@ -34,13 +34,13 @@ app.use("/uploads", express.static("uploads"));
 app.use(customErrorMiddleWare);
 // CONNECTING MONGODB ASYNCHRONOUSLY
 // =================================
-(async () => {
-	try {
-		await connectDB(mongoUrl, dbName);
-		//// Server id Listing if database successfully connected
-		app.listen(port, () => console.log(`app listening on ${port}`));
-	} catch (err) {
-		console.error(`Failed to start server ${err}`);
-		process.exit(1);
-	}
-})();
+// (async () => {
+// try {
+await connectDB(mongoUrl, dbName);
+//// Server id Listing if database successfully connected
+app.listen(port, () => console.log(`app listening on ${port}`));
+// } catch (err) {
+// console.error(`Failed to start server ${err}`);
+// process.exit(1);
+// }
+// })();
