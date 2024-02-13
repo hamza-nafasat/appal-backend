@@ -12,19 +12,21 @@ config({});
 // Constant Variables ...........
 const app = express();
 const port = process.env.PORT || 8000;
-const mongoUrl = process.env.MONGODB_URL;
-const dbName = process.env.DB_NAME || "appal-database";
+const mongoUrl =
+	process.env.MONGODB_URL ||
+	"mongodb+srv://faraz:AcmeIsWorking@cluster0.fmgxp11.mongodb.net/?retryWrites=true";
+const dbName = process.env.DB_NAME || "appal-database2";
 const usersPrefix = "/api/v1/users";
 const productsPrefix = "/api/v1/products";
 // Other Middlewares ...........
-app.use(cors({ origin: [process.env.LOCAL_HOST_URL, process.env.FRONTEND_ULR], credentials: true }));
+app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5173"], credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
 // Adding Routes ...........
 app.use(usersPrefix, usersRoutes);
 app.use(productsPrefix, productsRoutes);
 app.get("/", (req, res) => {
-	res.send(`App is running on <a href={${process.env.FRONTEND_ULR}}>Frontend url</a>`);
+	res.send(`App is running on <a href={"http://localhost:5173"}>Frontend url</a>`);
 });
 // Static Folder for Pics ...........
 app.use("/uploads", express.static("uploads"));
