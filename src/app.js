@@ -41,6 +41,6 @@ app.use(customErrorMiddleWare);
 		app.listen(port, () => console.log(`app listening on ${port}`));
 	} catch (err) {
 		console.error(`Failed to start server ${err}`);
-		process.exit(1);
+		// process.exit(1);
 	}
 })();
