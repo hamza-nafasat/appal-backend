@@ -1,0 +1,63 @@
+1 ---------------------------------------
+
+##user login or signup 
+
+ post method
+
+ http://localhost:8000/api/v1/users/new
+
+
+body data  =  _id:String,name:String,photo:String,email:String
+
+
+all data from firebase
+
+
+
+
+[all apis need one query data which is user id gated from firebase when user login ]
+
+2 ---------------------------------------
+
+## user number verification 
+
+ put method
+ 
+ http://localhost:8000/api/v1/users/verification
+
+ body data =  number:String,
+ 
+
+ if firebase otp success then we save number in database 
+
+
+3 ---------------------------------------
+
+##get my profile data
+
+get method
+
+http://localhost:8000/api/v1/users/profile
+
+
+4 ---------------------------------------
+
+## update profile 
+
+ put method
+
+ http://localhost:8000/api/v1/users/update-profile
+
+
+body data  =  name:String,dob:String
+
+5 ---------------------------------------
+
+## add to wishlist 
+
+method put
+
+http://localhost:8000/api/v1/products/wishList
+
+
+body data = productsId:String
