@@ -1,9 +1,7 @@
-import { nodeCash } from "../app.js";
-import CustomError from "../utils/customClass.js";
-import Product from "../models/products.model.js";
 import { TryCatch } from "../middlewares/errorHandler.js";
-import { deletePhoto, invalidateNodeCash, responseFunc } from "../utils/features.js";
-import User from "../models/user.model.js";
+import Product from "../models/products.model.js";
+import CustomError from "../utils/customClass.js";
+import { deletePhoto, responseFunc } from "../utils/features.js";
 
 // ============================================
 // http://localhost:8000/api/v1/products/create = CREATE NEW PRODUCT
@@ -66,7 +64,7 @@ export const getCityNames = TryCatch(async (req, res, next) => {
 });
 
 // ====================================================
-// http://localhost:8000/api/v1/products/admin-prodcuts = My Products
+// http://localhost:8000/api/v1/products/my-products = My Products
 // ====================================================
 export const myProducts = TryCatch(async (req, res, next) => {
 	let myId = req.user._id;
@@ -151,6 +149,12 @@ export const bidOnProduct = TryCatch(async (req, res, next) => {
 	if (!price) return next(new CustomError("Please Enter Price First", 400));
 	if (price < product.minPrice) return next(new CustomError("Please Enter A Valid Price", 400));
 
+	//// check user already bid or not
+	product.bids.forEach((bid) => {
+		if (bid.userId == user._id) {
+			return next(new CustomError("For New Bid You Need To Delete You Old Bid", 400));
+		}
+	});
 	//// if not provided anything
 	myBid.price = Number(price);
 	if (description) myBid.description = description;

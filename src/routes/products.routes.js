@@ -19,7 +19,7 @@ const app = express();
 // create new product
 app.post("/create", isAuthenticated, multiUpload, createNewProduct);
 // get all product
-app.get("/all", getFullProducts);
+// app.get("/all", getFullProducts);
 // get all cities
 app.get("/cities", getCityNames);
 // get all my products

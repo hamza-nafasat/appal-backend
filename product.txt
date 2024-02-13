@@ -1,0 +1,113 @@
+1 ---------------------------------------
+
+## create new product
+
+ post method
+
+ http://localhost:8000/api/v1/products/create
+
+
+### form Data ###
+
+minPrice:Number,
+maxPrice:Number,
+model:String,
+category:String,
+condition:String, 
+description:String,
+address:String,
+city:String,
+status:String,
+photos:Array of objects,
+
+
+2 ---------------------------------------
+
+##get get all cities
+
+get method
+
+http://localhost:8000/api/v1/products/cities
+
+
+4 ---------------------------------------
+
+## My Adds List 
+
+ get method
+
+ http://localhost:8000/api/v1/products/my-products
+
+
+
+5 ---------------------------------------
+
+## get single product 
+
+get method
+
+http://localhost:8000/api/v1/products/_id
+
+in url this id is a product id and in server i receive this id from params   
+
+
+
+6 ---------------------------------------
+
+## delete single product 
+
+delete method
+
+http://localhost:8000/api/v1/products/_id
+
+in url this id is a product id and in server i receive this id from params.
+
+
+7 ---------------------------------------
+
+## update single product 
+
+put method
+
+http://localhost:8000/api/v1/products/_id
+
+in url this id is a product id and in server i receive this id from params.
+
+
+8 ---------------------------------------
+
+## bid on product 
+
+put method
+
+http://localhost:8000/api/v1/products/bids/_id
+
+in url this id is a product id and in server i receive this id from params.
+
+body data = price:Number, description:String 
+
+
+9 ---------------------------------------
+
+## delete you bid  
+
+delete method
+
+http://localhost:8000/api/v1/products/bids/_id
+
+in url this id is a product id and in server i receive this id from params.
+
+
+9 ---------------------------------------
+
+##  Search All products from search page
+get method
+
+http://localhost:8000/api/v1/products/search-products
+
+query Data: search:string,city:string,category:string,model:string
+
+
+
+
+
