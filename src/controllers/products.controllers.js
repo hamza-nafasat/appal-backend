@@ -3,6 +3,7 @@ import Product from "../models/products.model.js";
 import User from "../models/user.model.js";
 import CustomError from "../utils/customClass.js";
 import { deletePhoto, responseFunc } from "../utils/features.js";
+import faker2 from "faker";
 
 // ============================================
 // http://localhost:8000/api/v1/products/create = CREATE NEW PRODUCT
@@ -11,6 +12,7 @@ export const createNewProduct = TryCatch(async (req, res, next) => {
 	const { minPrice, maxPrice, model, category, condition, description, address, city, status } =
 		req.body;
 	const { photos } = req.files;
+	console.log(photos);
 	if (!photos) return next(new CustomError("Please Enter AtLeast One Photo", 400));
 	//// if any field doesn't exist then delete photo and return an err response
 	if (
@@ -25,7 +27,9 @@ export const createNewProduct = TryCatch(async (req, res, next) => {
 		!status
 	) {
 		//// if not all fields the delete all photo array from saved folder
-		photos.forEach((photo) => deletePhoto(photo));
+		photos.forEach((photo) => {
+			deletePhoto(photo.path);
+		});
 		return next(new CustomError("Please Enter All Required Fields", 400));
 	}
 	//// pics array urls
@@ -68,9 +72,19 @@ export const getCityNames = TryCatch(async (req, res, next) => {
 // http://localhost:8000/api/v1/products/my-products = My Products
 // ====================================================
 export const myProducts = TryCatch(async (req, res, next) => {
-	let _id = req.query;
-	let products = await Product.find({ ownerId: _id });
+	let { userId } = req.query;
+	let products = await Product.find({ ownerId: userId });
 	return responseFunc(res, "All Adds Received", 200, products);
+});
+// ====================================================
+// http://localhost:8000/api/v1/products/my-all-wishlists = getWishListProducts
+// ====================================================
+export const myWishLists = TryCatch(async (req, res, next) => {
+	let { wishlists } = req.body;
+	console.log(wishlists);
+	const products = await Product.find({ _id: { $in: wishlists } });
+	console.log(products);
+	return responseFunc(res, "WishList ReceIved", 200, products);
 });
 
 // =========================================
@@ -80,7 +94,11 @@ export const getSingleProduct = TryCatch(async (req, res, next) => {
 	const { _id } = req.params;
 	const product = await Product.findById(_id);
 	if (!product) return next(new CustomError("Product Not Found", 404));
-	return responseFunc(res, "Product Received Successfully", 200, product);
+	const response = { product };
+	const owner = await User.findById(product.ownerId);
+	if (owner) response.owner = owner;
+	else response.owner = "Owner Not Found";
+	return responseFunc(res, "Product Received Successfully", 200, { product, owner });
 });
 // =========== same route =========== = DELETE SINGLE PRODUCT
 export const deleteProduct = TryCatch(async (req, res, next) => {
@@ -139,23 +157,25 @@ export const updateProduct = TryCatch(async (req, res, next) => {
 // ==================================================
 export const bidOnProduct = TryCatch(async (req, res, next) => {
 	const { _id } = req.params;
-	const userId = req.query._id;
-	const user = await User.findById(userId);
+	const { userId } = req.query;
 	const product = await Product.findById(_id);
 	if (!product) return next(new CustomError("Product Is Not Available", 404));
-	if (!user) return next(new CustomError("Your Id Not Found", 404));
+
 	//// if product is available in database then go next
 	const { price, description } = req.body;
-	const myBid = { userId: user._id };
+	let myBid = { userId: userId, createdAt: Date.now() };
+	console.log("working");
 	if (!price) return next(new CustomError("Please Enter Price First", 400));
 	if (price < product.minPrice) return next(new CustomError("Please Enter A Valid Price", 400));
 
 	//// check user already bid or not
-	product.bids.forEach((bid) => {
-		if (bid.userId == user._id) {
-			return next(new CustomError("For New Bid You Need To Delete You Old Bid", 400));
-		}
-	});
+	if (product.bids > 0) {
+		product.bids.forEach((bid) => {
+			if (bid.userId == userId) {
+				return next(new CustomError("For New Bid You Need To Delete You Old Bid", 400));
+			}
+		});
+	}
 	//// if not provided anything
 	myBid.price = Number(price);
 	if (description) myBid.description = description;
@@ -188,31 +208,25 @@ export const deleteYourBid = TryCatch(async (req, res, next) => {
 });
 
 //===================================================
-// http://localhost:8000/api/v1/products/serch-products =  ALL PRODUCTS FOR SEARCH AND FILTERS
+// http://localhost:8000/api/v1/products/latest =  latest 5 products for all categories
 // ===================================================
 
 export const latestProduct = TryCatch(async (req, res, next) => {
 	const categories = ["iphone", "ipad", "airpod", "mackbook", "watche", "homepod"];
-	const { iphoneData, iPadData, airPodData, mackbookData, watcheData, homepodData } =
-		await Promise.all(
-			categories.map((category) => Product.find({ category: category }).sort(-1).limit(5))
-		);
 
-	return responseFunc(res, "", 200, [
-		iphoneData,
-		iPadData,
-		airPodData,
-		mackbookData,
-		watcheData,
-		homepodData,
-	]);
+	const promises = categories.map((category) => {
+		return Product.find({ category: category }).sort({ date: -1 }).limit(5).exec();
+	});
+	const [iphone, ipad, airpod, mackbook, watche, homepod] = await Promise.all(promises);
+
+	return responseFunc(res, "", 200, { iphone, ipad, airpod, mackbook, watche, homepod });
 });
 
 //===================================================
-// http://localhost:8000/api/v1/products/serch-products =  ALL PRODUCTS FOR SEARCH AND FILTERS
+// http://localhost:8000/api/v1/products/search-products =  ALL PRODUCTS FOR SEARCH AND FILTERS
 // ===================================================
 export const mainSearchApi = TryCatch(async (req, res, next) => {
-	const { category, model, search, city } = req.query;
+	const { category, model, search, city, price } = req.query;
 	//// creating searchQuery according given fields
 	const searchBaseQuery = {};
 	if (search) {
@@ -227,7 +241,86 @@ export const mainSearchApi = TryCatch(async (req, res, next) => {
 	if (model) {
 		searchBaseQuery.model = String(model);
 	}
-
+	if (price) {
+		searchBaseQuery.maxPrice = {
+			$lte: Number(price),
+		};
+	}
 	const filteredProducts = await Product.find(searchBaseQuery);
 	return responseFunc(res, "", 200, filteredProducts);
+});
+
+// ======== Function to generate fake product data =======
+const generateFakeProductData = (category) => {
+	let model;
+	switch (category) {
+		case "iphone":
+			model = faker2.random.arrayElement(["iPhone 13", "iPhone 12", "iPhone 11", "iPhone SE"]);
+			break;
+		case "ipad":
+			model = faker2.random.arrayElement(["iPad Pro", "iPad Air", "iPad Mini"]);
+			break;
+		case "airpod":
+			model = faker2.random.arrayElement(["AirPods Pro", "AirPods Max", "AirPods"]);
+			break;
+		case "mackbook":
+			model = faker2.random.arrayElement(["MacBook Pro", "MacBook Air", "iMac"]);
+			break;
+		case "watche":
+			model = faker2.random.arrayElement([
+				"Apple Watch Series 7",
+				"Apple Watch SE",
+				"Apple Watch Series 6",
+			]);
+			break;
+		case "homepod":
+			model = faker2.random.arrayElement(["HomePod Mini", "HomePod"]);
+			break;
+		default:
+			model = faker2.random.word();
+			break;
+	}
+
+	const now = new Date();
+	const oneYearAgo = new Date(now);
+	oneYearAgo.setFullYear(now.getFullYear() - 1);
+	const createdAt = faker2.date.between(oneYearAgo, now);
+
+	return {
+		minPrice: faker2.datatype.number(),
+		maxPrice: faker2.datatype.number(),
+		photos: [`https://mobileguru.pk/wp-content/uploads/2022/07/iphone-12-pakistan-mobileguru.png`],
+		category: category,
+		model: model,
+		condition: faker2.random.arrayElement(["new", "refurbished", "used"]),
+		description: faker2.lorem.sentence(),
+		address: faker2.address.streetAddress(),
+		city: faker2.address.city(),
+		ownerId: "XZyQJUr3SaQg53NLhFT7EwcmIQH3",
+		status: faker2.random.arrayElement(["available", "sold", "Paused"]),
+		bids: Array.from({ length: faker2.datatype.number({ min: 0, max: 5 }) }, () => ({
+			userId: "XZyQJUr3SaQg53NLhFT7EwcmIQH3",
+			price: faker2.datatype.number(),
+			description: faker2.lorem.sentence(),
+			createdAt: createdAt,
+		})),
+		createdAt: createdAt,
+	};
+};
+export const latestProduct2 = TryCatch(async (req, res, next) => {
+	const categories = ["iphone", "ipad", "airpod", "mackbook", "watche", "homepod"];
+	const fakeProducts = [];
+	for (const category of categories) {
+		const categoryFakeProducts = Array.from({ length: 10 }, () =>
+			generateFakeProductData(category)
+		);
+		fakeProducts.push(...categoryFakeProducts);
+	}
+	try {
+		await Product.create(fakeProducts);
+		return responseFunc(res, "", 200, "Fake products added successfully");
+	} catch (error) {
+		console.error("Error adding fake products:", error);
+		return responseFunc(res, "Internal Server Error", 500);
+	}
 });

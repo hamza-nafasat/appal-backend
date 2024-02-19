@@ -11,9 +11,9 @@ import { isAuthenticated } from "../middlewares/auth.js";
 const app = express();
 
 app.post("/new", createUserWithGoogle);
-app.put("/verification", isAuthenticated, verifiedUserWithNumber);
+app.put("/verification", verifiedUserWithNumber);
 app.get("/profile", getMyProfile);
 app.put("/update", isAuthenticated, updateProfile);
-app.put("/wishlist", isAuthenticated, addToWishList);
+app.put("/wishlist", addToWishList);
 
 export default app;

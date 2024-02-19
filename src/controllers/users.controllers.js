@@ -45,7 +45,6 @@ export const verifiedUserWithNumber = TryCatch(async (req, res, next) => {
 export const getMyProfile = TryCatch(async (req, res, next) => {
 	const { _id } = req.query;
 	let user = await User.findById(_id);
-	console.log(user);
 	responseFunc(res, "", 200, user);
 });
 
@@ -75,8 +74,6 @@ export const addToWishList = TryCatch(async (req, res, next) => {
 		return next(new CustomError("Please Enter Product Id", 400));
 	}
 	const user = await User.findById(req.query._id);
-	console.log(user.wishList);
-	let isProductExist = false;
 	if (productId) {
 		user.wishList.forEach((item) => {
 			if (item == productId) {
