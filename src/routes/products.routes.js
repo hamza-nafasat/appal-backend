@@ -7,6 +7,7 @@ import {
 	getCityNames,
 	getFullProducts,
 	getSingleProduct,
+	latestProduct,
 	mainSearchApi,
 	myProducts,
 	updateProduct,
@@ -15,11 +16,12 @@ import { multiUpload } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
 const app = express();
-
+// get latest product
+app.get("/latest", latestProduct);
 // create new product
 app.post("/create", isAuthenticated, multiUpload, createNewProduct);
 // get all product
-// app.get("/all", getFullProducts);
+app.get("/all", getFullProducts);
 // get all cities
 app.get("/cities", getCityNames);
 // get all my products

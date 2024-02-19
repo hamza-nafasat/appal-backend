@@ -12,7 +12,7 @@ const app = express();
 
 app.post("/new", createUserWithGoogle);
 app.put("/verification", isAuthenticated, verifiedUserWithNumber);
-app.get("/profile", isAuthenticated, getMyProfile);
+app.get("/profile", getMyProfile);
 app.put("/update", isAuthenticated, updateProfile);
 app.put("/wishlist", isAuthenticated, addToWishList);
 

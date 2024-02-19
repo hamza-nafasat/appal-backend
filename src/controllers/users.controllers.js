@@ -16,6 +16,8 @@ export const createUserWithGoogle = TryCatch(async (req, res, next) => {
 	if (!name || !email || !photo || !_id) {
 		return next(new CustomError("Please Enter All Fields", 400));
 	}
+	user = await User.findOne({ email });
+	if (user) return responseFunc(res, `Please Enter A Unique Email`, 400);
 	user = await User.create({ name, email, photo, _id, isVerified: false });
 	responseFunc(res, "Account Registered Successfully", 201);
 });
@@ -29,7 +31,7 @@ export const verifiedUserWithNumber = TryCatch(async (req, res, next) => {
 	if (!number) {
 		return next(new CustomError("Please Provide Number Again", 400));
 	}
-	let user = await User.findById(req.user._id);
+	let user = await User.findById(req.query._id);
 	user.number = number;
 	user.isVerified = true;
 	await user.save();
@@ -41,8 +43,9 @@ export const verifiedUserWithNumber = TryCatch(async (req, res, next) => {
 // ==========================================
 
 export const getMyProfile = TryCatch(async (req, res, next) => {
-	const { _id } = req.user;
+	const { _id } = req.query;
 	let user = await User.findById(_id);
+	console.log(user);
 	responseFunc(res, "", 200, user);
 });
 
@@ -55,7 +58,7 @@ export const updateProfile = TryCatch(async (req, res, next) => {
 	if (!name && !dob) {
 		return next(new CustomError("Please Enter What You Want To Change", 400));
 	}
-	const user = await User.findById(req.user._id);
+	const user = await User.findById(req.query._id);
 	if (name) user.name = name;
 	if (dob) user.dob = new Date(dob);
 	await user.save();
@@ -71,7 +74,7 @@ export const addToWishList = TryCatch(async (req, res, next) => {
 	if (!productId) {
 		return next(new CustomError("Please Enter Product Id", 400));
 	}
-	const user = await User.findById(req.user._id);
+	const user = await User.findById(req.query._id);
 	console.log(user.wishList);
 	let isProductExist = false;
 	if (productId) {

@@ -19,7 +19,7 @@ const dbName = process.env.DB_NAME || "appal-database";
 const usersPrefix = "/api/v1/users";
 const productsPrefix = "/api/v1/products";
 // Other Middlewares ...........
-app.use(cors({ origin: "*", credentials: true }));
+app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 // Adding Routes ...........

@@ -1,5 +1,6 @@
 import { TryCatch } from "../middlewares/errorHandler.js";
 import Product from "../models/products.model.js";
+import User from "../models/user.model.js";
 import CustomError from "../utils/customClass.js";
 import { deletePhoto, responseFunc } from "../utils/features.js";
 
@@ -41,7 +42,7 @@ export const createNewProduct = TryCatch(async (req, res, next) => {
 		city: city,
 		photos: photosArrUrls,
 		status: status,
-		ownerId: req.user._id,
+		ownerId: req.query._id,
 	});
 	//// sending response
 	return responseFunc(res, "Product Created Successfully", 201);
@@ -67,8 +68,8 @@ export const getCityNames = TryCatch(async (req, res, next) => {
 // http://localhost:8000/api/v1/products/my-products = My Products
 // ====================================================
 export const myProducts = TryCatch(async (req, res, next) => {
-	let myId = req.user._id;
-	let products = await Product.find({ ownerId: myId });
+	let _id = req.query;
+	let products = await Product.find({ ownerId: _id });
 	return responseFunc(res, "All Adds Received", 200, products);
 });
 
@@ -138,9 +139,9 @@ export const updateProduct = TryCatch(async (req, res, next) => {
 // ==================================================
 export const bidOnProduct = TryCatch(async (req, res, next) => {
 	const { _id } = req.params;
+	const userId = req.query._id;
+	const user = await User.findById(userId);
 	const product = await Product.findById(_id);
-	let user = req.user;
-	console.log(user);
 	if (!product) return next(new CustomError("Product Is Not Available", 404));
 	if (!user) return next(new CustomError("Your Id Not Found", 404));
 	//// if product is available in database then go next
@@ -171,9 +172,10 @@ export const bidOnProduct = TryCatch(async (req, res, next) => {
 export const deleteYourBid = TryCatch(async (req, res, next) => {
 	const { _id } = req.params;
 	const product = await Product.findById(_id);
-	let userId = req.user._id;
+	const userId = req.query._id;
+	const user = await User.findById(userId);
 	if (!product) return next(new CustomError("Product Is Not Available", 404));
-	if (!userId) return next(new CustomError("Your Id Not Found", 404));
+	if (!user) return next(new CustomError("User Not Found", 404));
 	//// if product is available in database then go next
 	const newBids = product.bids.filter((bid) => {
 		if (bid.userId != userId) return bid;
@@ -188,9 +190,29 @@ export const deleteYourBid = TryCatch(async (req, res, next) => {
 //===================================================
 // http://localhost:8000/api/v1/products/serch-products =  ALL PRODUCTS FOR SEARCH AND FILTERS
 // ===================================================
+
+export const latestProduct = TryCatch(async (req, res, next) => {
+	const categories = ["iphone", "ipad", "airpod", "mackbook", "watche", "homepod"];
+	const { iphoneData, iPadData, airPodData, mackbookData, watcheData, homepodData } =
+		await Promise.all(
+			categories.map((category) => Product.find({ category: category }).sort(-1).limit(5))
+		);
+
+	return responseFunc(res, "", 200, [
+		iphoneData,
+		iPadData,
+		airPodData,
+		mackbookData,
+		watcheData,
+		homepodData,
+	]);
+});
+
+//===================================================
+// http://localhost:8000/api/v1/products/serch-products =  ALL PRODUCTS FOR SEARCH AND FILTERS
+// ===================================================
 export const mainSearchApi = TryCatch(async (req, res, next) => {
 	const { category, model, search, city } = req.query;
-	////  creating a logic of pages dataLimit on one page and skip data on page change
 	//// creating searchQuery according given fields
 	const searchBaseQuery = {};
 	if (search) {
