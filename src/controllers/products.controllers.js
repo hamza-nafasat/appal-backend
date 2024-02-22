@@ -12,7 +12,6 @@ export const createNewProduct = TryCatch(async (req, res, next) => {
 	const { minPrice, maxPrice, model, category, condition, description, address, city, status } =
 		req.body;
 	const { photos } = req.files;
-	console.log(photos);
 	if (!photos) return next(new CustomError("Please Enter AtLeast One Photo", 400));
 	//// if any field doesn't exist then delete photo and return an err response
 	if (
@@ -81,9 +80,7 @@ export const myProducts = TryCatch(async (req, res, next) => {
 // ====================================================
 export const myWishLists = TryCatch(async (req, res, next) => {
 	let { wishlists } = req.body;
-	console.log(wishlists);
 	const products = await Product.find({ _id: { $in: wishlists } });
-	console.log(products);
 	return responseFunc(res, "WishList ReceIved", 200, products);
 });
 
@@ -233,13 +230,13 @@ export const mainSearchApi = TryCatch(async (req, res, next) => {
 		searchBaseQuery.model = { $regex: new RegExp(String(search), "i") };
 	}
 	if (city) {
-		searchBaseQuery.city = String(city);
+		searchBaseQuery.city = { $regex: new RegExp(String(city), "i") };
 	}
 	if (category) {
-		searchBaseQuery.category = String(category);
+		searchBaseQuery.category = String(category.toLowerCase());
 	}
 	if (model) {
-		searchBaseQuery.model = String(model);
+		searchBaseQuery.model = String(model.toLowerCase());
 	}
 	if (price) {
 		searchBaseQuery.maxPrice = {
@@ -255,22 +252,101 @@ const generateFakeProductData = (category) => {
 	let model;
 	switch (category) {
 		case "iphone":
-			model = faker2.random.arrayElement(["iPhone 13", "iPhone 12", "iPhone 11", "iPhone SE"]);
+			model = faker2.random.arrayElement([
+				"iPhone 15 Pro Max",
+				"iPhone 15 Pro",
+				"iPhone 15 Plus",
+				"iPhone 15",
+				"iPhone 14 Pro Max",
+				"iPhone 14 Pro",
+				"iPhone 14 Plus",
+				"iPhone 14",
+				"iPhone 13 Pro Max",
+				"iPhone 13 Pro",
+				"iPhone 13 mini",
+				"iPhone 13",
+				"iPhone 12 Pro Max",
+				"iPhone 12 Pro",
+				"iPhone 12 mini",
+				"iPhone 12",
+				"iPhone SE ",
+				"iPhone 11 Pro Max",
+				"iPhone 11 Pro",
+				"iPhone 11",
+				"iPhone XR",
+				"iPhone XS Max",
+				"iPhone XS",
+				"iPhone X",
+				"iPhone 8 Plus",
+				"iPhone 8",
+				"iPhone 7 Plus",
+				"iPhone 7",
+				"iPhone 6S Plus",
+				"iPhone 6S",
+				"iPhone 6 Plus",
+				"iPhone 6",
+			]);
 			break;
 		case "ipad":
-			model = faker2.random.arrayElement(["iPad Pro", "iPad Air", "iPad Mini"]);
+			model = faker2.random.arrayElement([
+				"iPad (1st generation)",
+				"iPad 2",
+				"iPad (3rd generation)",
+				"iPad (4th generation)",
+				"iPad (5th generation)",
+				"iPad (6th generation)",
+				"iPad (7th generation)",
+				"iPad (8th generation)",
+				"iPad (9th generation)",
+				"iPad Air",
+				"iPad Air 2",
+				"iPad Air (3rd generation)",
+				"iPad Air (4th generation)",
+				"iPad Pro (1st generation)",
+				"iPad Pro (2nd generation)",
+				"iPad Pro (3rd generation)",
+				"iPad Pro (4th generation)",
+				"iPad Pro (5th generation)",
+			]);
 			break;
 		case "airpod":
-			model = faker2.random.arrayElement(["AirPods Pro", "AirPods Max", "AirPods"]);
+			model = faker2.random.arrayElement([
+				"AirPods Gen1",
+				"AirPods Gen2",
+				"AirPods Gen3",
+				"AirPods Pro",
+				"AirPods Max",
+			]);
 			break;
 		case "mackbook":
-			model = faker2.random.arrayElement(["MacBook Pro", "MacBook Air", "iMac"]);
+			model = faker2.random.arrayElement([
+				"MacBook Pro 14-inch (M2 Pro)",
+				"MacBook Pro 14-inch (M2 Max)",
+				"MacBook Pro 16-inch (M2 Pro)",
+				"MacBook Pro 16-inch (M2 Max)",
+				"MacBook Air (M2)",
+				"MacBook Pro 13-inch (M1, 2020)",
+				"MacBook Air (M1, 2020)",
+				"MacBook Pro 16-inch (Intel, 2019)",
+				"MacBook Pro 13-inch (Intel, 2019)",
+				"MacBook Air (Intel, 2018)",
+				"MacBook 12-inch (Intel, 2017)",
+			]);
 			break;
 		case "watche":
 			model = faker2.random.arrayElement([
-				"Apple Watch Series 7",
-				"Apple Watch SE",
-				"Apple Watch Series 6",
+				"Apple Watch Series 8 (GPS)",
+				"Apple Watch Series 8 (Cellular)",
+				"Apple Watch Series 8 Nike",
+				"Apple Watch Series 8 (Hermes)",
+				"Apple Watch SE (GPS)",
+				"Apple Watch SE (Cellular)",
+				"Apple Watch Series 7 (2021)",
+				"Apple Watch Series 6 (2020)",
+				"Apple Watch SE (2020)",
+				"Apple Watch Series 5 (2019)",
+				"Apple Watch Series 4 (2018)",
+				"Apple Watch Series 3 (2017)",
 			]);
 			break;
 		case "homepod":
@@ -289,16 +365,16 @@ const generateFakeProductData = (category) => {
 	return {
 		minPrice: faker2.datatype.number(),
 		maxPrice: faker2.datatype.number(),
-		photos: [`https://mobileguru.pk/wp-content/uploads/2022/07/iphone-12-pakistan-mobileguru.png`],
-		category: category,
-		model: model,
+		photos: [`uploads/image_e9fd1104-0fcb-4112-b5e2-e2749493923d_image.png`],
+		category: category.toLowerCase(),
+		model: model.toLowerCase(),
 		condition: faker2.random.arrayElement(["new", "refurbished", "used"]),
 		description: faker2.lorem.sentence(),
 		address: faker2.address.streetAddress(),
 		city: faker2.address.city(),
 		ownerId: "XZyQJUr3SaQg53NLhFT7EwcmIQH3",
-		status: faker2.random.arrayElement(["available", "sold", "Paused"]),
-		bids: Array.from({ length: faker2.datatype.number({ min: 0, max: 5 }) }, () => ({
+		status: faker2.random.arrayElement(["available", "sold", "paused"]),
+		bids: Array.from({ length: faker2.datatype.number({ min: 1, max: 5 }) }, () => ({
 			userId: "XZyQJUr3SaQg53NLhFT7EwcmIQH3",
 			price: faker2.datatype.number(),
 			description: faker2.lorem.sentence(),

@@ -13,7 +13,7 @@ const app = express();
 app.post("/new", createUserWithGoogle);
 app.put("/verification", verifiedUserWithNumber);
 app.get("/profile", getMyProfile);
-app.put("/update", isAuthenticated, updateProfile);
+app.put("/update", updateProfile);
 app.put("/wishlist", addToWishList);
 
 export default app;

@@ -45,7 +45,7 @@ const productSchema = new mongoose.Schema(
 		status: {
 			type: String,
 			required: true,
-			enum: ["available", "sold", "Paused"],
+			enum: ["available", "sold", "paused"],
 		},
 		bids: [
 			{

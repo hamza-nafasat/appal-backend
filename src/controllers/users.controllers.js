@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import CustomError from "../utils/customClass.js";
 import { TryCatch } from "../middlewares/errorHandler.js";
 import { responseFunc } from "../utils/features.js";
+import Product from "../models/products.model.js";
 
 // ======================================
 // http://localhost:8000/api/v1/users/new = CREATE OR LOGIN USER WITH GOOGLE
