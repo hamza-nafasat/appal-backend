@@ -209,14 +209,21 @@ export const deleteYourBid = TryCatch(async (req, res, next) => {
 // ===================================================
 
 export const latestProduct = TryCatch(async (req, res, next) => {
-	const categories = ["iphone", "ipad", "airpod", "mackbook", "watche", "homepod"];
+	const categories = ["iphone", "ipad", "airpod", "mackbook", "watch", "homepod"];
 
 	const promises = categories.map((category) => {
 		return Product.find({ category: category }).sort({ date: -1 }).limit(5).exec();
 	});
-	const [iphone, ipad, airpod, mackbook, watche, homepod] = await Promise.all(promises);
+	const [iphone, ipad, airpod, mackbook, watch, homepod] = await Promise.all(promises);
+	const response = {};
+	if (iphone.length > 0) response.iphone = iphone;
+	if (ipad.length > 0) response.ipad = ipad;
+	if (airpod.length > 0) response.airpod = airpod;
+	if (mackbook.length > 0) response.mackbook = mackbook;
+	if (watch.length > 0) response.watch = watch;
+	if (homepod.length > 0) response.homepod = homepod;
 
-	return responseFunc(res, "", 200, { iphone, ipad, airpod, mackbook, watche, homepod });
+	return responseFunc(res, "", 200, response);
 });
 
 //===================================================
